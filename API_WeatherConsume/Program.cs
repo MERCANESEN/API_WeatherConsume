@@ -1,6 +1,9 @@
 ﻿#region Menü Başlangıcı
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 Console.WriteLine("Hava Durumu Uygulamasına Hoşgeldiniz \n" ); //ctrl+D yapınca alta aynısını getiriryor
 Console.WriteLine("*** Yapmak İstediğiniz İşlemi Seçiniz *** \\n");
@@ -50,8 +53,7 @@ if (number == "2")
             string cityName = item["cityName"].ToString();
             string country = item["country"].ToString();
             string temp = item["temp"].ToString();
-            Console.WriteLine(cityName + " - " + country + " ---> "+ temp + $"{degreeSymbol}C"  );
-
+            Console.WriteLine(cityName + " - " + country + " ---> " + temp + $"{degreeSymbol}C");
 
         }
     }
@@ -59,7 +61,44 @@ if (number == "2")
 }
 if (number == "3")
 {
-    Console.WriteLine("Şehir ekleme işlemleri ");
+    Console.Write("*** Yeni Veri Girişi ***\n");
+    string cityName, country, detail;
+    decimal temp;
+
+
+    Console.Write("Şehir Adı:");
+    cityName = Console.ReadLine();
+
+    Console.Write("Ülke Adı:");
+    country = Console.ReadLine();
+
+    Console.Write("Sıcaklık:");
+    temp = decimal.Parse(Console.ReadLine());
+
+    Console.Write("Hava Durumu Bilgisi:");
+    detail=Console.ReadLine();
+
+    string url = "http://localhost:5242/api/WeathersControllers";
+    var newWeather = new
+    {
+        cityName = cityName,
+        country = country,
+        temp = temp,
+        detail = detail
+
+    };
+
+
+    using (HttpClient client = new HttpClient())
+
+    {
+        string json = JsonConvert.SerializeObject(newWeather);
+        StringContent content = new StringContent(json, encoding: Encoding.UTF8 ,"application/json");
+        HttpResponseMessage response = await client.PostAsync(url, content);
+        response.EnsureSuccessStatusCode();
+    }
+
+
 
 }
 Console.Read();
